@@ -2,7 +2,7 @@
   description = "NixOS for Raspberry Pi 5 (via rpi-nix)";
 
   inputs = {
-    nixpkgs.url      = "github:NixOS/nixpkgs/release-25.11";
+    nixpkgs.url      = "https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz";
     rpi-nix.url      = "github:nix-community/raspberry-pi-nix";
   };
 
