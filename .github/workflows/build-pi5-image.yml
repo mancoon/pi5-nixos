@@ -1,17 +1,6 @@
 name: Build NixOS Pi 5 Image
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  build-image:
-    runs-on: ubuntu-latest
-
- name: Build NixOS Pi 5 Image
-
-on:
 push:
 branches: \[ main ]
 workflow\_dispatch:
@@ -20,7 +9,6 @@ jobs:
 build-image:
 runs-on: ubuntu-latest
 
-```
 steps:
   - name: Checkout repo
     uses: actions/checkout@v4
@@ -38,7 +26,7 @@ steps:
 
   - name: Build sdImage
     run: |
-      # Heartbeat so logs stay alive
+      # Heartbeat every minute to keep logs active
       (while true; do echo -n "."; sleep 60; done) & \
       nix build .#nixosConfigurations.pi5.config.system.build.sdImage \
         --print-build-logs --verbose; \
