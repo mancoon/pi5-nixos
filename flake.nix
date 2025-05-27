@@ -2,7 +2,8 @@
   description = "NixOS for Raspberry Pi 5 (via rpi-nix)";
 
   inputs = {
-    nixpkgs.url      = "https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz";
+    # Pull in the official 25.05 channel tarball for binary cache
+    nixpkgs.url      = "https://channels.nixos.org/nixos-25.05/nixexprs.tar.xz";
     rpi-nix.url      = "github:nix-community/raspberry-pi-nix";
   };
 
