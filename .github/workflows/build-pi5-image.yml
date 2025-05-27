@@ -37,4 +37,3 @@ steps:
     with:
       name: nixos-pi5-sd-image
       path: result/sd-image/*.img.zst
-```
