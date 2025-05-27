@@ -9,28 +9,44 @@ jobs:
   build-image:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+ name: Build NixOS Pi 5 Image
 
-      - name: Setup QEMU for cross-compile
-        uses: docker/setup-qemu-action@v3
+on:
+push:
+branches: \[ main ]
+workflow\_dispatch:
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-            extra-platforms = aarch64-linux
+jobs:
+build-image:
+runs-on: ubuntu-latest
 
-      - name: Build sdImage
-        run: |
-          nix build .#nixosConfigurations.pi5.config.system.build.sdImage \
-            --print-build-logs
+```
+steps:
+  - name: Checkout repo
+    uses: actions/checkout@v4
 
-      - name: Upload sdImage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nixos-pi5-sd-image
-          path: result/sd-image/*.img.zst
+  - name: Setup QEMU for cross-compile
+    uses: docker/setup-qemu-action@v3
+
+  - name: Install Nix
+    uses: cachix/install-nix-action@v31
+    with:
+      nix_path: nixpkgs=https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz
+      extra_nix_config: |
+        experimental-features = nix-command flakes
+        extra-platforms = aarch64-linux
+
+  - name: Build sdImage
+    run: |
+      # Heartbeat so logs stay alive
+      (while true; do echo -n "."; sleep 60; done) & \
+      nix build .#nixosConfigurations.pi5.config.system.build.sdImage \
+        --print-build-logs --verbose; \
+      kill $!
+
+  - name: Upload sdImage artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: nixos-pi5-sd-image
+      path: result/sd-image/*.img.zst
+```
