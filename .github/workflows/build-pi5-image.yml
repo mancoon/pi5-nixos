@@ -1,39 +1,43 @@
+# .github/workflows/build-pi5-image.yml
+
 name: Build NixOS Pi 5 Image
 
 on:
-push:
-branches: \[ main ]
-workflow\_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-build-image:
-runs-on: ubuntu-latest
+  build-image:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repo
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  - name: Setup QEMU for cross-compile
-    uses: docker/setup-qemu-action@v3
+      - name: Setup QEMU for cross-compile
+        uses: docker/setup-qemu-action@v3
 
-  - name: Install Nix
-    uses: cachix/install-nix-action@v31
-    with:
-      nix_path: nixpkgs=https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz
-      extra_nix_config: |
-        experimental-features = nix-command flakes
-        extra-platforms = aarch64-linux
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          # Pin to 25.11 so we get fast binary-cache downloads
+          nix_path: nixpkgs=https://channels.nixos.org/nixos-25.11/nixexprs.tar.xz
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
 
-  - name: Build sdImage
-    run: |
-      # Heartbeat every minute to keep logs active
-      (while true; do echo -n "."; sleep 60; done) & \
-      nix build .#nixosConfigurations.pi5.config.system.build.sdImage \
-        --print-build-logs --verbose; \
-      kill $!
+      - name: Build sdImage
+        run: |
+          # Heartbeat every 60s so logs don’t time out
+          ( while true; do echo -n "."; sleep 60; done ) & \
+          nix build .#nixosConfigurations.pi5.config.system.build.sdImage \
+            --print-build-logs --verbose; \
+          kill $!
 
-  - name: Upload sdImage artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: nixos-pi5-sd-image
-      path: result/sd-image/*.img.zst
+      - name: Upload sdImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nixos-pi5-sd-image
+          path: result/sd-image/*.img.zst
